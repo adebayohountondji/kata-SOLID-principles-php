@@ -2,7 +2,7 @@
 
 namespace App\Orders;
 
-use App\Services\Mysql;
+use App\Databases\Mysql;
 
 class Order
 {
