@@ -16,6 +16,9 @@ the complexity of evolving a poorly-architected application. Finally, in a third
 to refactor the code following the SOLID principles and the taught hexagonal architecture, making the code more
 understandable, testable, and adaptable.
 
+The correction for this refactoring is located on
+the ["right-way"](https://github.com/adebayohountondji/kata-SOLID-principles-php/tree/right-way) branch.
+
 ## Requirements
 
 - PHP ^8.2
