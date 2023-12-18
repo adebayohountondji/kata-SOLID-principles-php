@@ -2,7 +2,14 @@
 
 require_once __DIR__ . "/vendor/autoload.php";
 
-use App\Orders\NewOrderData;
+use App\Databases\MysqlConnection;
+use App\Databases\OrdersListImpl;
+use App\Orders\AddItemToOrder;
+use App\Orders\AddItemToOrderData;
+use App\Orders\CreateOrder;
+use App\Orders\CreateOrderData;
+use App\Orders\FindOrderById;
+use App\Orders\OrderItemData;
 use App\Orders\Order;
 use App\Orders\OrderAlreadyExistsError;
 use App\Orders\OrderNotFoundError;
@@ -31,22 +38,19 @@ $application->register("create-order")
     )
     ->setDescription("Create a new order with an ID and a VAT rate.")
     ->setCode(function (InputInterface $input, OutputInterface $output): int {
+        $orderId = $input->getArgument("id");
+        $orderVatRate = $input->getOption("value-added-tax");
+        $useCase = new CreateOrder(new OrdersListImpl(MysqlConnection::createFromEnvVars()));
+
         try {
-            Order::new(
-                new NewOrderData(
-                    id: $input->getArgument("id"),
-                    vat_rate: $input->getOption("value-added-tax"),
-                )
-            );
+            $useCase->execute(new CreateOrderData(id: $orderId, vat_rate: $orderVatRate));
         } catch (OrderAlreadyExistsError $e) {
             $output->writeln($e->getMessage());
 
             return Command::FAILURE;
         }
 
-        $output->writeln(
-            "Successfully created order with ID {$input->getArgument("id")}.",
-        );
+        $output->writeln("Successfully created order with ID '{$orderId}'.");
 
         return Command::SUCCESS;
     });
@@ -55,8 +59,10 @@ $application->register("display-order")
     ->addArgument("id", InputArgument::REQUIRED, "Must be an unsigned integer.")
     ->setDescription("Display an order by ID.")
     ->setCode(function (InputInterface $input, OutputInterface $output): int {
+        $useCase = new FindOrderById(new OrdersListImpl(MysqlConnection::createFromEnvVars()));
+
         try {
-            $order = Order::findById($input->getArgument("id"));
+            $order = $useCase->execute($input->getArgument("id"));
         } catch (OrderNotFoundError $e) {
             $output->writeln($e->getMessage());
 
@@ -90,24 +96,30 @@ $application->register("add-item-to-order")
     )
     ->setDescription("Add item to order by ID.")
     ->setCode(function (InputInterface $input, OutputInterface $output): int {
+        $ordersList = new OrdersListImpl(MysqlConnection::createFromEnvVars());
+
         try {
-            $order = Order::findById($input->getArgument("id"));
+            $order = (new FindOrderById($ordersList))->execute($input->getArgument("id"));
         } catch (OrderNotFoundError $e) {
             $output->writeln($e->getMessage());
 
             return Command::FAILURE;
         }
 
-        $order->addItem(
-            new \App\Orders\ItemData(
-                name: $input->getOption("item-name"),
-                price: (float)$input->getOption("item-price"),
-                quantity: (int)$input->getOption("item-quantity"),
+        $useCase = new AddItemToOrder($ordersList);
+        $useCase->execute(
+            new AddItemToOrderData(
+                order: $order,
+                item: new OrderItemData(
+                    name: $input->getOption("item-name"),
+                    price: (float)$input->getOption("item-price"),
+                    quantity: (int)$input->getOption("item-quantity"),
+                )
             )
         );
 
         $output->writeln(
-            "Item '{$input->getOption("item-name")}' successfully added to order {$input->getArgument("id")}."
+            "Item '{$input->getOption("item-name")}' successfully added to order '{$input->getArgument("id")}'."
         );
 
         return Command::SUCCESS;

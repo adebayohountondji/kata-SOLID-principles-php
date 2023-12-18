@@ -2,9 +2,9 @@
 
 namespace App\Databases;
 
-class Mysql
+class MysqlConnection
 {
-    private \PDO|null $PDO;
+    private \PDO|null $pdo;
 
     public function __construct(
         string $dbname,
@@ -14,23 +14,23 @@ class Mysql
         string $user,
     )
     {
-        $this->PDO = new \PDO("mysql:host={$host};dbname={$dbname};port={$port}", $user, $pass);
-        $this->PDO->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+        $this->pdo = new \PDO("mysql:host={$host};dbname={$dbname};port={$port}", $user, $pass);
+        $this->pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
     }
 
-    public function getPDO(): \PDO
+    public function getPdo(): ?\PDO
     {
-        return $this->PDO;
+        return $this->pdo;
     }
 
     public function __destruct()
     {
-        $this->PDO = null;
+        $this->pdo = null;
     }
 
-    public static function createFromEnvVars(): Mysql
+    public static function createFromEnvVars(): MysqlConnection
     {
-        return new Mysql(
+        return new MysqlConnection(
             dbname: $_ENV["MYSQL_DBNAME"],
             host: $_ENV["MYSQL_HOST"],
             pass: $_ENV["MYSQL_PASS"],

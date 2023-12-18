@@ -2,7 +2,7 @@
 
 namespace App\Orders;
 
-readonly class NewOrderData
+readonly class CreateOrderData
 {
     public function __construct(
         public int   $id,

@@ -2,7 +2,7 @@
 
 namespace App\Orders;
 
-class ItemNotFoundInOrderError extends \Exception
+class ItemNotFoundError extends \Exception
 {
     public function __construct(string $name)
     {

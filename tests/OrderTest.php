@@ -6,13 +6,21 @@ final class OrderTest extends TestCase
 {
     public function test(): void
     {
-        /*
-         * @todo Create tests for src/Orders/Order.php
-         *
-         * The tests should verify that when creating an order
-         * with a VAT rate of 0.2 and adding an item with a price of 100,
-         * a quantity of 2, the resulting total is 240.
-         */
-        $this->assertSame(true, false);
+        $order = \App\Orders\Order::create(
+            new \App\Orders\CreateOrderData(
+                id: 1,
+                vat_rate: \App\Orders\Order::DEFAULT_VAT_RATE
+            )
+        );
+
+        $order->addItem(
+            new \App\Orders\OrderItemData(
+                name: "Book",
+                price: 100,
+                quantity: 2
+            )
+        );
+
+        $this->assertEquals(240, $order->toData()->total);
     }
 }

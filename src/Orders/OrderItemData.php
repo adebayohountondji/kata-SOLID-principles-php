@@ -2,7 +2,7 @@
 
 namespace App\Orders;
 
-readonly class ItemData
+readonly class OrderItemData
 {
     public function __construct(
         public string $name,
