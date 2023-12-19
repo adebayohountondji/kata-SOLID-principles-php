@@ -5,8 +5,8 @@ students in CTO and Tech Lead roles at HETIC.
 
 ## Context
 
-This is a simple PHP application that allows you to create orders, add items to the order, calculate the total by
-applying VAT, and view orders.
+Practical exercise applying the concepts of my course on SOLID principles and hexagonal architecture intended for master
+CTO and Tech Lead students at HETIC.
 
 With this deliberately poorly designed code, where persistence and the command system are tightly coupled, the initial
 objective is to encourage students to write unit tests without modifying the source code, in order to demonstrate how
