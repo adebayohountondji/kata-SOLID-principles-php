@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Orders;
+namespace App\Domain;
 
 readonly class FindOrderById
 {

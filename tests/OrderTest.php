@@ -6,15 +6,15 @@ final class OrderTest extends TestCase
 {
     public function test(): void
     {
-        $order = \App\Orders\Order::create(
-            new \App\Orders\CreateOrderData(
+        $order = \App\Domain\Order::create(
+            new \App\Domain\CreateOrderData(
                 id: 1,
-                vat_rate: \App\Orders\Order::DEFAULT_VAT_RATE
+                vat_rate: \App\Domain\Order::DEFAULT_VAT_RATE
             )
         );
 
         $order->addItem(
-            new \App\Orders\OrderItemData(
+            new \App\Domain\OrderItemData(
                 name: "Book",
                 price: 100,
                 quantity: 2

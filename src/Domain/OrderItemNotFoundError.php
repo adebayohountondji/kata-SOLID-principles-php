@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Orders;
+namespace App\Domain;
 
-class ItemNotFoundError extends \Exception
+class OrderItemNotFoundError extends \Exception
 {
     public function __construct(string $name)
     {

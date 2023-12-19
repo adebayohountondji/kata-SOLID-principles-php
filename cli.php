@@ -2,17 +2,16 @@
 
 require_once __DIR__ . "/vendor/autoload.php";
 
-use App\Databases\MysqlConnection;
-use App\Databases\OrdersListImpl;
-use App\Orders\AddItemToOrder;
-use App\Orders\AddItemToOrderData;
-use App\Orders\CreateOrder;
-use App\Orders\CreateOrderData;
-use App\Orders\FindOrderById;
-use App\Orders\OrderItemData;
-use App\Orders\Order;
-use App\Orders\OrderAlreadyExistsError;
-use App\Orders\OrderNotFoundError;
+use App\App;
+use App\Domain\CreateOrderData;
+use App\Domain\OrderItemData;
+use App\Domain\AddItemToOrder;
+use App\Domain\AddItemToOrderData;
+use App\Domain\CreateOrder;
+use App\Domain\FindOrderById;
+use App\Domain\Order;
+use App\Domain\OrderAlreadyExistsError;
+use App\Domain\OrderNotFoundError;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -25,9 +24,11 @@ if (file_exists(__DIR__ . "/.env")) {
         ->load();
 }
 
-$application = new Application(name: "Kata SOLID principles", version: "1.0.0");
+$app = App::createFromEnvVars();
 
-$application->register("create-order")
+$cli = new Application(name: "Kata SOLID principles", version: "1.0.0");
+
+$cli->register("create-order")
     ->addArgument("id", InputArgument::REQUIRED, "Must be an unsigned integer.")
     ->addOption(
         "value-added-tax",
@@ -37,10 +38,10 @@ $application->register("create-order")
         Order::DEFAULT_VAT_RATE
     )
     ->setDescription("Create a new order with an ID and a VAT rate.")
-    ->setCode(function (InputInterface $input, OutputInterface $output): int {
+    ->setCode(function (InputInterface $input, OutputInterface $output) use ($app): int {
         $orderId = $input->getArgument("id");
         $orderVatRate = $input->getOption("value-added-tax");
-        $useCase = new CreateOrder(new OrdersListImpl(MysqlConnection::createFromEnvVars()));
+        $useCase = new CreateOrder($app->orderList());
 
         try {
             $useCase->execute(new CreateOrderData(id: $orderId, vat_rate: $orderVatRate));
@@ -55,11 +56,11 @@ $application->register("create-order")
         return Command::SUCCESS;
     });
 
-$application->register("display-order")
+$cli->register("display-order")
     ->addArgument("id", InputArgument::REQUIRED, "Must be an unsigned integer.")
     ->setDescription("Display an order by ID.")
-    ->setCode(function (InputInterface $input, OutputInterface $output): int {
-        $useCase = new FindOrderById(new OrdersListImpl(MysqlConnection::createFromEnvVars()));
+    ->setCode(function (InputInterface $input, OutputInterface $output) use ($app): int {
+        $useCase = new FindOrderById($app->orderList());
 
         try {
             $order = $useCase->execute($input->getArgument("id"));
@@ -74,7 +75,7 @@ $application->register("display-order")
         return Command::SUCCESS;
     });
 
-$application->register("add-item-to-order")
+$cli->register("add-item-to-order")
     ->addArgument("id", InputArgument::REQUIRED, "Must be an unsigned integer.")
     ->addOption(
         "item-name",
@@ -95,28 +96,26 @@ $application->register("add-item-to-order")
         "Must be an integer."
     )
     ->setDescription("Add item to order by ID.")
-    ->setCode(function (InputInterface $input, OutputInterface $output): int {
-        $ordersList = new OrdersListImpl(MysqlConnection::createFromEnvVars());
-
+    ->setCode(function (InputInterface $input, OutputInterface $output) use ($app): int {
         try {
-            $order = (new FindOrderById($ordersList))->execute($input->getArgument("id"));
+            $order = (new FindOrderById($app->orderList()))->execute($input->getArgument("id"));
         } catch (OrderNotFoundError $e) {
             $output->writeln($e->getMessage());
 
             return Command::FAILURE;
         }
 
-        $useCase = new AddItemToOrder($ordersList);
-        $useCase->execute(
-            new AddItemToOrderData(
-                order: $order,
-                item: new OrderItemData(
-                    name: $input->getOption("item-name"),
-                    price: (float)$input->getOption("item-price"),
-                    quantity: (int)$input->getOption("item-quantity"),
+        (new AddItemToOrder($app->orderList()))
+            ->execute(
+                new AddItemToOrderData(
+                    order: $order,
+                    item: new OrderItemData(
+                        name: $input->getOption("item-name"),
+                        price: (float)$input->getOption("item-price"),
+                        quantity: (int)$input->getOption("item-quantity"),
+                    )
                 )
-            )
-        );
+            );
 
         $output->writeln(
             "Item '{$input->getOption("item-name")}' successfully added to order '{$input->getArgument("id")}'."
@@ -125,4 +124,4 @@ $application->register("add-item-to-order")
         return Command::SUCCESS;
     });
 
-$application->run();
+$cli->run();

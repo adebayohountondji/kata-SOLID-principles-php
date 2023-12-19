@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Orders;
+namespace App\Domain;
 
 class Order
 {
@@ -31,7 +31,7 @@ class Order
         $this->calculate();
     }
 
-    /** @throws ItemNotFoundError */
+    /** @throws OrderItemNotFoundError */
     public function deleteItem(string $name): void
     {
         foreach ($this->items as $index => $item) {
@@ -42,7 +42,7 @@ class Order
             }
         }
 
-        throw new ItemNotFoundError($name);
+        throw new OrderItemNotFoundError($name);
     }
 
     private function calculate(): void
