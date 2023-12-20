@@ -1,12 +1,13 @@
 <?php
 
-namespace App\Domain;
+namespace App\Domain\Orders;
 
-interface OrdersList
+interface OrdersStorage
 {
     public function has(string $id): bool;
 
     public function save(OrderData $data): void;
 
+    /** @throws OrderNotFoundError */
     public function findById(string $id): OrderData;
 }

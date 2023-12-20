@@ -2,12 +2,12 @@
 
 namespace App\Services\Mysql;
 
-use App\Domain\OrderData;
-use App\Domain\OrderItemData;
-use App\Domain\OrderNotFoundError;
-use App\Domain\OrdersList;
+use App\Domain\Orders\OrderData;
+use App\Domain\Orders\OrderItemData;
+use App\Domain\Orders\OrderNotFoundError;
+use App\Domain\Orders\OrdersStorage;
 
-class OrdersListImpl implements OrdersList
+class OrdersStorageImpl implements OrdersStorage
 {
     private Mysql $mysql;
 
@@ -72,11 +72,7 @@ class OrdersListImpl implements OrdersList
             );
         }
 
-        try {
-            $transaction->run();
-        } catch (\PDOException $e) {
-            throw $e;
-        }
+        $transaction->run();
     }
 
     /** @throws OrderNotFoundError */

@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Domain;
+namespace App\Domain\Orders;
 
 readonly class AddItemToOrder
 {
     public function __construct(
-        private OrdersList $ordersList
+        private OrdersStorage $ordersStorage
     )
     {
     }
@@ -15,6 +15,6 @@ readonly class AddItemToOrder
         $order = Order::fromData($data->order);
         $order->addItem($data->item);
 
-        $this->ordersList->save($order->toData());
+        $this->ordersStorage->save($order->toData());
     }
 }

@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Domain;
+namespace App\Domain\Orders;
 
 readonly class CreateOrder
 {
     public function __construct(
-        private OrdersList $ordersList
+        private OrdersStorage $ordersStorage
     )
     {
     }
@@ -13,12 +13,14 @@ readonly class CreateOrder
     /** @throws OrderAlreadyExistsError */
     public function execute(CreateOrderData $data): void
     {
-        if ($this->ordersList->has($data->id)) {
+        if ($this->ordersStorage->has($data->id)) {
             throw new OrderAlreadyExistsError($data->id);
         }
 
         $order = Order::create($data);
 
-        $this->ordersList->save($order->toData());
+        $this->ordersStorage->save($order->toData());
+
+        // Do another things like emit event
     }
 }

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Domain;
+namespace App\Domain\Orders;
 
 class OrderNotFoundError extends \Exception
 {
