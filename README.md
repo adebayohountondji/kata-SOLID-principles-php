@@ -52,6 +52,12 @@ php cli.php display-order 1
 php cli.php add-item-to-order 1 --item-name Book --item-quantity 2 --item-price "12.00"
 ```
 
+### `test`
+
+```sh
+php composer.phar run tests
+```
+
 ## License
 
 Please see [License File](LICENSE) for more information.
