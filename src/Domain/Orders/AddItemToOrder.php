@@ -10,10 +10,11 @@ readonly class AddItemToOrder
     {
     }
 
+    /** @throws OrderNotFoundError */
     public function execute(AddItemToOrderData $data): void
     {
-        $order = Order::fromData($data->order);
-        $order->addItem($data->item);
+        $order = Order::fromData($this->ordersStorage->findById($data->orderId));
+        $order->addItem($data->orderItem);
 
         $this->ordersStorage->save($order->toData());
     }

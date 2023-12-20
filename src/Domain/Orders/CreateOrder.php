@@ -20,7 +20,5 @@ readonly class CreateOrder
         $order = Order::create($data);
 
         $this->ordersStorage->save($order->toData());
-
-        // Do another things like emit event
     }
 }

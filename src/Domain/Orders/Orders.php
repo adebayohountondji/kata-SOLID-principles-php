@@ -22,6 +22,7 @@ readonly class Orders
         return (new FindOrderById($this->ordersStorage))->execute($id);
     }
 
+    /** @throws OrderNotFoundError */
     public function addItemToOrder(AddItemToOrderData $data): void
     {
         (new AddItemToOrder($this->ordersStorage))->execute($data);

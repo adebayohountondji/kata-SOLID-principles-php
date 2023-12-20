@@ -94,23 +94,21 @@ $cli->register("add-item-to-order")
     ->setDescription("Add item to order by ID.")
     ->setCode(function (InputInterface $input, OutputInterface $output) use ($app): int {
         try {
-            $order = $app->orders()->findById($input->getArgument("id"));
+            $app->orders()->addItemToOrder(
+                new AddItemToOrderData(
+                    orderId: (int)$input->getArgument("id"),
+                    orderItem: new OrderItemData(
+                        name: $input->getOption("item-name"),
+                        price: (float)$input->getOption("item-price"),
+                        quantity: (int)$input->getOption("item-quantity"),
+                    )
+                )
+            );
         } catch (OrderNotFoundError $e) {
             $output->writeln($e->getMessage());
 
             return Command::FAILURE;
         }
-
-        $app->orders()->addItemToOrder(
-            new AddItemToOrderData(
-                order: $order,
-                item: new OrderItemData(
-                    name: $input->getOption("item-name"),
-                    price: (float)$input->getOption("item-price"),
-                    quantity: (int)$input->getOption("item-quantity"),
-                )
-            )
-        );
 
         $output->writeln(
             "Item '{$input->getOption("item-name")}' successfully added to order '{$input->getArgument("id")}'."
