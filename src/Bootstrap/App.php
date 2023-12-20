@@ -7,15 +7,12 @@ use App\Services\Mysql\Config;
 use App\Services\Mysql\Mysql;
 use App\Services\Mysql\OrdersStorageImpl;
 
-class App
+readonly class App
 {
-    private Mysql $mysql;
-
     public function __construct(
-        Config $mysqlConfig
+        private Config $mysqlConfig
     )
     {
-        $this->mysql = new Mysql($mysqlConfig);
     }
 
     public function orders(): Orders
@@ -24,11 +21,24 @@ class App
 
         if ($orders === null) {
             $orders = new Orders(
-                ordersStorage: new OrdersStorageImpl($this->mysql)
+                ordersStorage: new OrdersStorageImpl($this->mysql())
             );
         }
 
         return $orders;
+    }
+
+    private function mysql(): Mysql
+    {
+        static $mysql = null;
+
+        if ($mysql === null) {
+            $mysql = new Mysql(
+                config: $this->mysqlConfig
+            );
+        }
+
+        return $mysql;
     }
 
     public static function createFromEnvVars(): App
